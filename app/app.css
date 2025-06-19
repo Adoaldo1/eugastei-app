@@ -5,11 +5,522 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+/* Theme System - CSS Custom Properties */
+:root {
+  /* Light Mode (Default) */
+  --color-background: 255 255 255; /* #FFFFFF */
+  --color-sidebar: 249 250 251; /* #F9FAFB */
+  --color-card: 249 250 251; /* #F9FAFB */
+  --color-border: 229 231 235; /* #E5E7EB */
+  
+  /* Text Colors - Light Mode */
+  --color-text: 1 4 11; /* #01040B */
+  --color-text-secondary: 20 21 25; /* #141519 */
+  --color-text-muted: 156 163 175; /* #9CA3AF */
+  
+  /* Brand Colors (same in both themes) */
+  --color-primary: 0 122 255; /* #007AFF */
+  --color-success: 82 204 75; /* #52CC4B */
+  --color-danger: 204 75 75; /* #CC4B4B */
+  --color-warning: 251 191 36; /* #FBBF24 */
+  
+  /* Primary Button Colors - Light Mode (keep original) */
+  --color-primary-button: 0 122 255; /* #007AFF */
+  --color-primary-button-border: 0 122 255; /* #007AFF */
+  --color-primary-button-text: 255 255 255; /* #FFFFFF */
+  --color-primary-button-hover: 0 86 204; /* #0056CC */
+  
+  /* Input Background Colors - Light Mode (keep original) */
+  --color-input-bg: 249 250 251; /* #F9FAFB - same as card */
+  
+  /* Input Border Colors - Light Mode (keep original) */
+  --color-input-border: 229 231 235; /* #E5E7EB - same as border */
+}
+
+/* Dark Mode */
+.dark {
+  --color-background: 5 6 15; /* #05060F */
+  --color-sidebar: 18 19 23; /* #121317 */
+  --color-card: 19 20 31; /* #13141F */
+  --color-border: 32 33 42; /* #20212A */
+  
+  /* Text Colors - Dark Mode */
+  --color-text: 249 250 251; /* #F9FAFB */
+  --color-text-secondary: 209 209 214; /* #D1D1D6 */
+  --color-text-muted: 138 138 142; /* #8A8A8E */
+  
+  /* Primary Button Colors - Dark Mode */
+  --color-primary-button: 98 67 255; /* #6243FF */
+  --color-primary-button-border: 140 137 180; /* #8C89B4 */
+  --color-primary-button-text: 255 255 255; /* #FFFFFF */
+  --color-primary-button-hover: 82 51 235; /* #5233EB - slightly darker for hover */
+  
+  /* Input Background Colors - Dark Mode */
+  --color-input-bg: 24 24 37; /* #181825 */
+  
+  /* Input Border Colors - Dark Mode */
+  --color-input-border: 61 63 76; /* #3D3F4C */
+}
+
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  margin: 0;
+  padding: 0;
+  background: rgb(var(--color-background));
+  min-height: 100vh;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: rgb(var(--color-text));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+/* Semantic component classes using theme tokens */
+.content-box {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 16px;
+}
+
+/* Special balance box style (same as card in new theme system) */
+.balance-box {
+  background-color: rgb(var(--color-card));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 16px;
+}
+
+/* Sidebar specific styling */
+.sidebar-bg {
+  background-color: rgb(var(--color-sidebar));
+  border-color: rgb(var(--color-border));
+}
+
+/* Padding de 32px APENAS nos cards da dashboard inicial */
+/* Seletores específicos para a página home */
+[data-route="home"] .content-box,
+[data-route="home"] .balance-box {
+  padding: 32px !important;
+}
+
+/* Input placeholder styles - adapts to theme */
+input::placeholder,
+select::placeholder,
+textarea::placeholder {
+  color: rgb(var(--color-text-muted)) !important;
+  font-size: 14px !important;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Checkbox styles - adapts to theme */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #007AFF;
+  border-color: #007AFF;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+@media (min-width: 640px) {
+  input[type="checkbox"]:checked::after {
+    font-size: 12px;
   }
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+}
+
+input[type="checkbox"]:hover {
+  border-color: #007AFF;
+}
+
+/* Theme-aware utility classes for backward compatibility */
+.text-primary {
+  color: rgb(var(--color-text)) !important;
+}
+
+.text-secondary {
+  color: rgb(var(--color-text-secondary)) !important;
+}
+
+/* Card border-radius consistency - Ensure all card-like elements use 16px border-radius */
+.bg-card,
+[class*="bg-card"] {
+  border-radius: 16px !important;
+}
+
+/* Override Tailwind's rounded-xl for card contexts to ensure 16px */
+.bg-card.rounded-xl,
+[class*="bg-card"].rounded-xl {
+  border-radius: 16px !important;
+}
+
+/* Remove border-radius from top navigation bar */
+.bg-card.rounded-none,
+[style*="height: 110px"].bg-card {
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Primary Button Styles - Dark Mode Override with Higher Specificity */
+.dark button.bg-primary,
+.dark a.bg-primary,
+.dark .bg-primary {
+  background: #6243FF !important;
+  border: 1px solid #8C89B4 !important;
+  border-radius: 8px !important;
+  color: #FFFFFF !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark button.bg-primary:hover,
+.dark a.bg-primary:hover,
+.dark .bg-primary:hover {
+  background: #5233EB !important;
+  border-color: #8C89B4 !important;
+  opacity: 1 !important;
+}
+
+/* Handle Tailwind's hover classes specifically */
+.dark .hover\:bg-primary:hover,
+.dark .hover\:bg-primary\/90:hover {
+  background: #5233EB !important;
+}
+
+/* Override any existing background with primary variations */
+.dark [class*="bg-primary"] {
+  background: #6243FF !important;
+  border: 1px solid #8C89B4 !important;
+  border-radius: 8px !important;
+  color: #FFFFFF !important;
+}
+
+.dark [class*="bg-primary"]:hover {
+  background: #5233EB !important;
+}
+
+/* Ensure text color overrides any text color classes */
+.dark .bg-primary,
+.dark .bg-primary .text-text,
+.dark .bg-primary .text-white,
+.dark .bg-primary span,
+.dark .bg-primary * {
+  color: #FFFFFF !important;
+}
+
+/* Primary button focus states */
+.dark .bg-primary:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(98, 67, 255, 0.3) !important;
+}
+
+/* Primary button disabled state */
+.dark .bg-primary:disabled {
+  background: rgba(98, 67, 255, 0.5) !important;
+  border-color: rgba(140, 137, 180, 0.5) !important;
+  cursor: not-allowed !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Override gradient buttons to use new primary colors in dark mode */
+.dark .bg-gradient-to-r.from-\[#1A4D99\].to-\[#2C80FF\],
+.dark [class*="bg-gradient-to-r"][class*="from-[#1A4D99]"][class*="to-[#2C80FF]"],
+.dark [class*="bg-gradient"][class*="1A4D99"],
+.dark [class*="bg-gradient"][class*="2C80FF"] {
+  background: #6243FF !important;
+  background-image: none !important;
+  border: 1px solid #8C89B4 !important;
+  border-radius: 8px !important;
+  color: #FFFFFF !important;
+}
+
+.dark .bg-gradient-to-r.from-\[#1A4D99\].to-\[#2C80FF\]:hover,
+.dark [class*="bg-gradient-to-r"][class*="from-[#1A4D99]"][class*="to-[#2C80FF]"]:hover,
+.dark [class*="bg-gradient"][class*="1A4D99"]:hover,
+.dark [class*="bg-gradient"][class*="2C80FF"]:hover {
+  background: #5233EB !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+/* Ultra-specific override for all blue buttons in dark mode */
+.dark button[class*="bg-gradient"],
+.dark button[class*="bg-primary"],
+.dark a[class*="bg-gradient"],
+.dark a[class*="bg-primary"],
+.dark div[class*="bg-gradient"],
+.dark div[class*="bg-primary"] {
+  background: #6243FF !important;
+  background-image: none !important;
+  border: 1px solid #8C89B4 !important;
+  border-radius: 8px !important;
+  color: #FFFFFF !important;
+}
+
+.dark button[class*="bg-gradient"]:hover,
+.dark button[class*="bg-primary"]:hover,
+.dark a[class*="bg-gradient"]:hover,
+.dark a[class*="bg-primary"]:hover,
+.dark div[class*="bg-gradient"]:hover,
+.dark div[class*="bg-primary"]:hover {
+  background: #5233EB !important;
+  background-image: none !important;
+}
+
+/* Maximum specificity override - force all blue elements to use new colors */
+html.dark body *[class*="bg-gradient-to-r"],
+html.dark body *[class*="from-[#1A4D99]"],
+html.dark body *[class*="to-[#2C80FF]"],
+html.dark body *[class*="bg-primary"] {
+  background: #6243FF !important;
+  background-image: none !important;
+  background-color: #6243FF !important;
+  border: 1px solid #8C89B4 !important;
+  border-radius: 8px !important;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+}
+
+html.dark body *[class*="bg-gradient-to-r"]:hover,
+html.dark body *[class*="from-[#1A4D99]"]:hover,
+html.dark body *[class*="to-[#2C80FF]"]:hover,
+html.dark body *[class*="bg-primary"]:hover {
+  background: #5233EB !important;
+  background-image: none !important;
+  background-color: #5233EB !important;
+  border-color: #8C89B4 !important;
+  opacity: 1 !important;
+}
+
+/* Modal styles to match card appearance */
+.dark .content-box {
+  background-color: rgb(var(--color-card)) !important;
+  border: 1px solid rgb(var(--color-border)) !important;
+  border-radius: 16px !important;
+}
+
+/* Ensure modal content uses card styling */
+.dark .content-box.rounded-xl {
+  border-radius: 16px !important;
+}
+
+/* Input background and border styles - Dark Mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="color"],
+.dark select,
+.dark textarea {
+  background-color: rgb(var(--color-input-bg)) !important;
+  border-color: rgba(var(--color-input-border), 0.3) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+/* Force border color on all input elements with high specificity */
+html.dark body input,
+html.dark body select,
+html.dark body textarea {
+  border-color: rgba(61, 63, 76, 0.3) !important;
+  background-color: rgb(24, 24, 37) !important;
+}
+
+/* Specific overrides for common input classes */
+.dark input.border-input-border\/30,
+.dark select.border-input-border\/30,
+.dark textarea.border-input-border\/30,
+.dark input[class*="border-input-border"],
+.dark select[class*="border-input-border"],
+.dark textarea[class*="border-input-border"] {
+  border-color: rgba(61, 63, 76, 0.3) !important;
+}
+
+/* Ultra-specific overrides for input elements */
+html.dark body div input,
+html.dark body div select,
+html.dark body div textarea,
+html.dark body form input,
+html.dark body form select,
+html.dark body form textarea {
+  border-color: rgba(61, 63, 76, 0.3) !important;
+  background-color: rgb(24, 24, 37) !important;
+}
+
+/* Override any border classes that might be applied */
+.dark *[class*="border-border"],
+.dark *[class*="border-gray"],
+.dark *[class*="border-slate"] {
+  border-color: rgba(61, 63, 76, 0.3) !important;
+}
+
+/* Force styles on TransactionForm specifically */
+.dark .p-4 input,
+.dark .p-6 input,
+.dark .p-8 input,
+.dark form input,
+.dark form select,
+.dark form textarea {
+  border: 1px solid rgba(61, 63, 76, 0.3) !important;
+  background-color: #181825 !important;
+}
+
+/* Target specific input by classes */
+.dark input[class*="rounded-lg"],
+.dark select[class*="rounded-lg"],
+.dark textarea[class*="rounded-lg"] {
+  border: 1px solid rgba(61, 63, 76, 0.3) !important;
+  background-color: #181825 !important;
+}
+
+/* Specific rule for input with exact hex color */
+.dark input,
+.dark select,
+.dark textarea {
+  border: 1px solid #3d3f4c4d !important; /* #3D3F4C with 30% opacity = 4d in hex */
+  background-color: #181825 !important;
+}
+
+/* Final override with maximum specificity */
+html.dark body * input[type="text"],
+html.dark body * input[type="email"],
+html.dark body * input[type="password"],
+html.dark body * input[type="number"],
+html.dark body * input[type="date"],
+html.dark body * select,
+html.dark body * textarea {
+  border: 1px solid #3d3f4c4d !important;
+  background-color: #181825 !important;
+}
+
+/* Transaction buttons gradient border - Class version */
+.transaction-button-gradient-border,
+.btn-transaction-gradient {
+  border: 1px solid transparent !important;
+  background: 
+    linear-gradient(to bottom, #6243FF, #6243FF) padding-box,
+    linear-gradient(to bottom, rgba(140, 137, 180, 0.7), rgba(140, 137, 180, 0)) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+/* Force the gradient border on dark mode transaction buttons */
+.dark .btn-transaction-gradient {
+  border: 1px solid transparent !important;
+  background: 
+    linear-gradient(to bottom, #6243FF, #6243FF) padding-box,
+    linear-gradient(to bottom, rgba(140, 137, 180, 0.7), rgba(140, 137, 180, 0)) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+/* Apply gradient border to transaction buttons */
+.dark button[class*="bg-gradient-to-r"][class*="from-"][class*="1A4D99"],
+.dark button[class*="bg-gradient-to-r"][class*="from-"][class*="6243FF"] {
+  border: 1px solid transparent !important;
+  background: 
+    linear-gradient(to bottom, #6243FF, #6243FF) padding-box,
+    linear-gradient(to bottom, rgba(140, 137, 180, 0.7), rgba(140, 137, 180, 0)) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+/* Ultra-specific selectors for transaction buttons */
+html.dark body div button[class*="bg-gradient-to-r"],
+html.dark body form button[class*="bg-gradient-to-r"] {
+  border: 1px solid transparent !important;
+  background: 
+    linear-gradient(to bottom, #6243FF, #6243FF) padding-box,
+    linear-gradient(to bottom, rgba(140, 137, 180, 0.7), rgba(140, 137, 180, 0)) border-box !important;
+  background-clip: padding-box, border-box !important;
+}
+
+/* Theme toggle animation - specific transitions only */
+html,
+body {
+  transition: background-color 0.15s ease !important;
+}
+
+/* Only apply smooth transitions to backgrounds and borders where it makes sense */
+.theme-transition {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Estilos para animações */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Navigation hover effect */
+.nav-hover-bg:hover {
+  background-color: rgba(36, 37, 60, 0.3) !important;
+}
+
+/* Light mode border overrides - ONLY for light mode */
+/* Top navigation bar border - light mode only */
+html:not(.dark) .light-mode-top-border {
+  border-bottom-color: #E5E7EB !important;
+}
+
+/* Frame borders - light mode only */
+html:not(.dark) .light-mode-frame-border {
+  border-top-color: #E5E7EB !important;
+  border-left-color: #E5E7EB !important;
+}
+
+/* Dark mode keeps original colors */
+html.dark .light-mode-top-border {
+  border-bottom-color: #20212A !important;
+}
+
+html.dark .light-mode-frame-border {
+  border-top-color: #20212A !important;
+  border-left-color: #20212A !important;
+}
+
+/* Remove shadow in light mode only */
+html:not(.dark) .light-mode-frame-border {
+  box-shadow: none !important;
 }

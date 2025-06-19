@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./assets/eugasteilogo-D9nANAwL.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>euGastei - Controle Financeiro</title>
+    <meta name="description" content="Plataforma moderna de controle financeiro pessoal" />
+    
+    <!-- Preconnect para Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    
+    <!-- Script para aplicar tema antes do React carregar (evita flash) -->
+    <script>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          // DARK como padrão principal do sistema
+          const theme = savedTheme || 'dark';
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (error) {
+          console.warn('Error applying initial theme:', error);
+          // Fallback para dark mode em caso de erro
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-BcqcFfBs.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vendor-DoC2WAmd.js">
+    <link rel="modulepreload" crossorigin href="./assets/charts-E9utyH0O.js">
+    <link rel="modulepreload" crossorigin href="./assets/supabase-BvMyrXo6.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-SDCqAxxq.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html> 
