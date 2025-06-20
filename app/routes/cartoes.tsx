@@ -13,6 +13,13 @@ export default function CartoesPage() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Estados para edição
+  const [editingCard, setEditingCard] = useState<Cartao | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Estados para exclusão
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
 
   // Estados do formulário para pré-visualização
   const [formData, setFormData] = useState({
@@ -57,8 +64,8 @@ export default function CartoesPage() {
     loadCartoes();
   }, [user?.id]);
 
-  // Função para adicionar novo cartão
-  const handleAddCartao = async (e: React.FormEvent) => {
+  // Função para salvar cartão (criar ou editar)
+  const handleSaveCartao = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user?.id) {
@@ -83,7 +90,7 @@ export default function CartoesPage() {
     }
 
     setSaving(true);
-    setError(null); // Limpar erro anterior
+    setError(null);
     
     try {
       const cartaoData: CreateCartaoData = {
@@ -94,26 +101,58 @@ export default function CartoesPage() {
         ativo: true
       };
 
-      console.log('Sending card data to service:', cartaoData);
-      console.log('User ID from context:', user.id);
-
-      const { data, error } = await cartoesService.create(cartaoData, user.id);
-      
-      if (error) {
-        console.error('Service returned error:', error);
-        throw error;
+      if (isEditing && editingCard) {
+        // Atualizar cartão existente
+        const { data, error } = await cartoesService.update(editingCard.id, cartaoData);
+        if (error) throw error;
+        console.log('Cartão atualizado:', data);
+      } else {
+        // Criar novo cartão
+        const { data, error } = await cartoesService.create(cartaoData, user.id);
+        if (error) throw error;
+        console.log('Cartão criado:', data);
       }
-
-      console.log('Card created successfully:', data);
 
       setIsModalOpen(false);
       resetForm();
-      await loadCartoes(); // Recarregar lista
+      await loadCartoes();
     } catch (err) {
-      console.error('Erro ao criar cartão:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao criar cartão');
+      console.error('Erro ao salvar cartão:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao salvar cartão');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Função para abrir modal de edição
+  const handleEditCard = (card: Cartao) => {
+    setEditingCard(card);
+    setIsEditing(true);
+    setFormData({
+      nome: card.nome,
+      limite: card.limite.toString(),
+      vencimento: card.vencimento.toString(),
+      selectedColor: card.cor
+    });
+    setIsModalOpen(true);
+  };
+
+  // Função para excluir cartão
+  const handleDeleteCard = async (cardId: string) => {
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita.');
+    if (!confirmDelete) return;
+
+    setDeletingCardId(cardId);
+    try {
+      const { error } = await cartoesService.delete(cardId);
+      if (error) throw error;
+      
+      await loadCartoes();
+    } catch (err) {
+      console.error('Erro ao excluir cartão:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao excluir cartão');
+    } finally {
+      setDeletingCardId(null);
     }
   };
 
@@ -129,7 +168,7 @@ export default function CartoesPage() {
       const { data, error } = await cartoesService.getAll(user.id);
       if (error) throw error;
       setCartoes(data);
-      setError(null); // Limpar erro anterior
+      setError(null);
     } catch (err) {
       console.error('Erro ao carregar cartões:', err);
       setError(err instanceof Error ? err.message : 'Erro ao carregar cartões');
@@ -146,6 +185,8 @@ export default function CartoesPage() {
       vencimento: '',
       selectedColor: '#8A2BE2'
     });
+    setEditingCard(null);
+    setIsEditing(false);
   };
 
   // Atualizar dados do formulário
@@ -154,6 +195,12 @@ export default function CartoesPage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Função para abrir modal de novo cartão
+  const handleNewCard = () => {
+    resetForm();
+    setIsModalOpen(true);
   };
 
   return (
@@ -171,7 +218,7 @@ export default function CartoesPage() {
               </p>
             </div>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleNewCard}
               className="bg-gradient-to-r from-[#1A4D99] to-[#2C80FF] text-white text-sm sm:text-[16px] font-semibold px-4 sm:px-6 lg:px-[42px] py-3 lg:py-[16px] rounded-[8px] flex items-center justify-center transition-all hover:opacity-90 btn-transaction-gradient"
               style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
             >
@@ -298,11 +345,36 @@ export default function CartoesPage() {
                               
                               {/* Base - Botões de ação */}
                               <div className="flex gap-2 mt-6">
-                                <button className="flex-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200 backdrop-blur-sm">
+                                <button 
+                                  onClick={() => handleEditCard(card)}
+                                  className="flex-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white py-2.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200 backdrop-blur-sm flex items-center justify-center gap-1"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
                                   Editar
                                 </button>
-                                <button className="flex-1 bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white py-2.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200">
-                                  Excluir
+                                <button 
+                                  onClick={() => handleDeleteCard(card.id)}
+                                  disabled={deletingCardId === card.id}
+                                  className="flex-1 bg-red-500 bg-opacity-80 hover:bg-opacity-100 text-white py-2.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-1"
+                                >
+                                  {deletingCardId === card.id ? (
+                                    <>
+                                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                      </svg>
+                                      Excluindo...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                      Excluir
+                                    </>
+                                  )}
                                 </button>
                               </div>
                             </div>
@@ -317,10 +389,15 @@ export default function CartoesPage() {
           </div>
         </div>
 
-        {/* Modal de Adicionar Cartão */}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {/* Modal de Adicionar/Editar Cartão */}
+        <Modal isOpen={isModalOpen} onClose={() => {
+          setIsModalOpen(false);
+          resetForm();
+        }}>
           <div className="bg-modal-light backdrop-blur-xl rounded-xl p-8 border border-border shadow-2xl">
-            <h2 className="text-xl font-semibold text-text mb-6">Adicionar Novo Cartão</h2>
+            <h2 className="text-xl font-semibold text-text mb-6">
+              {isEditing ? 'Editar Cartão' : 'Adicionar Novo Cartão'}
+            </h2>
             
             {/* Pré-visualização do cartão */}
             <div className="flex justify-center items-center flex-col mb-8">
@@ -389,7 +466,7 @@ export default function CartoesPage() {
               </div>
             </div>
             
-            <form onSubmit={handleAddCartao}>
+            <form onSubmit={handleSaveCartao}>
               <div className="space-y-4">
                 {/* Nome do cartão */}
                 <div>
@@ -509,7 +586,10 @@ export default function CartoesPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    resetForm();
+                  }}
                   className="flex-1 px-4 py-2 bg-card border border-border text-text rounded-lg hover:bg-card transition-colors"
                 >
                   Cancelar
@@ -519,7 +599,7 @@ export default function CartoesPage() {
                   disabled={saving}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-[#1A4D99] to-[#2C80FF] text-text rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  {saving ? 'Salvando...' : 'Salvar'}
+                  {saving ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Salvar')}
                 </button>
               </div>
             </form>
